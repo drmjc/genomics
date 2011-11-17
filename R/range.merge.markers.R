@@ -1,0 +1,65 @@
+# Usful function to annotate the markers that are significant for a particular
+# gene in a genome scan.
+# First work out which markers are significant (either as indices, or as the
+# marker names) then supply these markers to this function, along with the
+# names of all markers, and you will be supplied with a char vector of these
+# markers, and if a few markers in a row are significant, then just the start
+# and end marker with a "-" (or sep) is returned.
+#
+# Parameters:
+#     x is a set of marker names (or words), or indices that are in the range
+#       1:length(marker.names)
+#     marker.names: The marker names (or words) to look up the indices supplied
+#       in x.
+#     gap.length: allow N gaps between consecutive markers to be allowed.
+#       0 implies no gaps; 1 implies if markers A and C are significant, then
+#       marker B is expected to be significant, and included in the range.
+#     sep: Which character should be used to delimit a range of words?
+#     single.string: if NULL, then a character vector is returned. If not NULL
+#       then it's value will be used to concatenate the ranges into a single
+#       string, thus ", " comma separates the ranges. For clarity, avoid using
+#       the same symbol as specified by sep.
+#
+# Value:
+#     A character vector with ranges identified by the first and last marker,
+#     and singletons identified by their name.
+#
+# eg:
+#    range.merge.markers(c(1:4,6), LETTERS)
+#        [1] "A-D" "F"
+#    range.merge.markers(c(LETTERS[1:4], LETTERS[6]), LETTERS)
+#        [1] "A-D" "F"
+#
+# Mark Cowley, 22 march 2006
+#
+range.merge.markers <- function(x, marker.names, gaplength=0, sep="-", single.string=", ") {
+
+    if( missing(marker.names) )
+        stop("must supply marker.names to work out if there are any gaps in 'x'\n")
+
+    if( is.character(x) ) {
+        #
+        # convert the characters to indices into the marker.names vector
+        # so the programming logic can work
+        #
+
+        x <- match(x, marker.names)
+    }
+
+    range <- range.merge(x, gaplength=gaplength)
+
+    if( !is.null(range) && nrow(range) > 0 ) {
+        res <- rep("", nrow(range))
+        for(i in 1:nrow(range)) {
+            if( range[i,1] == range[i,2] )
+                res[i] <- marker.names[ range[i,1] ]
+            else
+                res[i] <- paste( marker.names[ range[i,1] ], marker.names[ range[i,2] ], sep=sep)
+        }
+    }
+
+    if( !is.null(single.string) )
+        res <- paste(res, collapse=single.string, sep="")
+
+    return( res )
+}
