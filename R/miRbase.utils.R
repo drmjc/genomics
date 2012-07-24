@@ -402,12 +402,12 @@ miRNA.validate.miR.ID <- function(miRids, mirbase5p3p, dropped.mirs=NULL) {
 		#
 		# 2. does it end in -5p or -3p?
 		#
-		else if( str.right(miRid, 3) %in% c("-5p", "-3p") ) {
+		else if( str_right(miRid, 3) %in% c("-5p", "-3p") ) {
 			mirid <- miR2mir(miRid)
 			mir.row <- match(mirid, mirbase5p3p$ID)
 			if( mirid %in% mirbase5p3p$ID ) {
 				tmp <- unlist(mirbase5p3p[mir.row, c("Mature5p_ID", "Mature3p_ID")])
-				if( str.right(miRid, 3) == "-5p" )
+				if( str_right(miRid, 3) == "-5p" )
 					tmp <- tmp[1]
 				else
 					tmp <- tmp[2]
@@ -423,7 +423,7 @@ miRNA.validate.miR.ID <- function(miRids, mirbase5p3p, dropped.mirs=NULL) {
 		#
 		# 3. does it end in *?
 		#
-		else if( str.right(miRid, 1) == "*" ) {
+		else if( str_right(miRid, 1) == "*" ) {
 			# if mir exists, then miR* are generally newer than the miR - choose the one with the newer MIMAT id
 			mirid <- miR2mir(miRid)
 			mir.row <- match(mirid, mirbase5p3p$ID)
