@@ -43,7 +43,7 @@ make.unique.gene2refseq <- function(g2r, taxid=TAXID.MOUSE) {
 
         if( length(rows) > 1 ) {
             if( !alleq(g2r$GENOMEacc[rows]) ) {
-                cat( p("GeneID: ", g2r$GeneID[rows[1]], " maps to >1 chr -- choosing the most validated one (or the first one)\n") )
+                cat( paste("GeneID: ", g2r$GeneID[rows[1]], " maps to >1 chr -- choosing the most validated one (or the first one)\n", sep="") )
             }
 
             rows <- rows[order.refseq(g2r$Status[rows])]
