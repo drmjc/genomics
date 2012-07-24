@@ -46,7 +46,7 @@ range.merge.markers <- function(x, marker.names, gaplength=0, sep="-", single.st
         x <- match(x, marker.names)
     }
 
-    range <- range.merge(x, gaplength=gaplength)
+    range <- range_merge(x, gaplength=gaplength)
 
     if( !is.null(range) && nrow(range) > 0 ) {
         res <- rep("", nrow(range))
