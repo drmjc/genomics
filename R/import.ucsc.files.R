@@ -96,7 +96,9 @@ import.knownGene2gene <- function(taxid=TAXID.MOUSE,
     unlink(tmp)
     colnames(res) <- c("knownGeneID", "GeneID")
     res <- res[order(res$knownGeneID),]
-    res <- rm.duplicate.rows(res, issorted=T)
+    # res <- rm.duplicate.rows(res, issorted=T)
+    res <- res[!duplicated(res), ]
+
     rownames(res) <- 1:nrow(res)
 
     res
