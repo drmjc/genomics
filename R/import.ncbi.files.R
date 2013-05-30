@@ -2,13 +2,22 @@ TAXID.RAT <- 10116
 TAXID.MOUSE <- 10090
 TAXID.HUMAN <- 9606
 
-## General wrapper to import and NCBI file that has usually been mirrored to the
-## local disc. It will copy the compressed or uncompressed file, unzip it in the
-## tmp dir, grep out the taxon of interest, resort by a given column, and return
-## the data
-##
-## Mark Cowley, 10 April 2006
-##
+#' import.ncbi.file
+#' 
+#' General wrapper to import and NCBI file that has usually been mirrored to the
+#' local disc. It will copy the compressed or uncompressed file, unzip it in the
+#' tmp dir, grep out the taxon of interest, resort by a given column, and return
+#' the data
+#' 
+#' @param file path to ncbi-formatted file
+#' @param taxid numeric taxon id
+#' @param colnames character vector
+#' @param sortby.col undocumented
+#' 
+#' @return \code{data.frame}
+#' 
+#' @author Mark Cowley, 10 April 2006
+#' @export
 import.ncbi.file <- function(file, taxid, colnames, sortby.col) {
 
     file.type <- gsub("\\.gz", "", basename(file))
@@ -17,8 +26,8 @@ import.ncbi.file <- function(file, taxid, colnames, sortby.col) {
 
     tmp <- tempfile(pattern="ncbi") # this will contain the full-sized uncompressed NCBI file
 
-    if( grepT("\\.gz$", file) ) {
-        tmp <- p(tmp, ".gz")
+    if( grepl("\\.gz$", file) ) {
+        tmp <- paste0(tmp, ".gz")
         file.copy(file, tmp)
         file.gunzip(tmp)
 
@@ -30,13 +39,13 @@ import.ncbi.file <- function(file, taxid, colnames, sortby.col) {
 
     tmp2 <- tempfile(pattern="ncbi")  # this will contain NCBI file for organism of interest.
 
-    cat( p("subsetting to taxon ID: ", taxid, "\n") )
+    cat( paste0("subsetting to taxon ID: ", taxid, "\n") )
     system(paste("grep -w '^", taxid, "' ", tmp, " > ", tmp2, sep=""))
 
     #
     # import the subsetted NCBI file
     #
-    cat( p("importing ", file.type, " for ", taxid, "\n") )
+    cat( paste0("importing ", file.type, " for ", taxid, "\n") )
     ncbi <- read.delim( tmp2, as.is=T, header=F )
     colnames(ncbi) <- colnames[1:ncol(ncbi)]
 
@@ -58,16 +67,11 @@ import.ncbi.file <- function(file, taxid, colnames, sortby.col) {
 }
 
 
-## import a local copy of the gene_info file.
-## see import.ncbi.file
-##
-## 8 August 2006L robustified the colnaming. new 13th column indicates
-## the assembly used. added extra "unknown" column names and make sure
-## that import.ncbi.file only tries to give as many column names to the
-## table as there are in that table.
-##
-## Mark Cowley, 10 April 2006
-##
+#' import a local copy of the gene_info file.
+#' 
+#' @author Mark Cowley, 10 April 2006
+#' @export
+#' @seealso \code{\link{import.ncbi.file}}
 import.gene_info <- function(file="/biomirror/ftp.ncbi.nih.gov/gene/DATA/gene_info.gz", taxid=10090, add.cM.column=T) {
     colnames <- c("TaxonID", "GeneID", "Symbol", "LocusTag", "Synonyms", "dbXrefs", "Chr", "MapLoc", "Description", "Type", "SymbolNomenc", "FullNameNomenc", "StatusNomenc", "Other")
     sortby.col <- "GeneID"
@@ -83,13 +87,19 @@ import.gene_info <- function(file="/biomirror/ftp.ncbi.nih.gov/gene/DATA/gene_in
 
     return( gi )
 }
+# CHANGELOG
+# 8/8/2006 robustified the colnaming. new 13th column indicates
+# the assembly used. added extra "unknown" column names and make sure
+# that import.ncbi.file only tries to give as many column names to the
+# table as there are in that table.
 
 
-## import a local copy of the gene2refseq file.
-## see import.ncbi.file
-##
-## Mark Cowley, 10 April 2006
-##
+#' import a local copy of the gene2refseq file.
+#' 
+#' @author Mark Cowley, 10 April 2006
+#' @export
+#' @seealso \code{\link{import.ncbi.file}}
+#' @importFrom mjcbase colclasses "colclasses<-"
 import.gene2refseq <- function(file="/biomirror/ftp.ncbi.nih.gov/gene/DATA/gene2refseq.gz", taxid=10090,
                                make.unique=T) {
     colnames <- c("TaxonID", "GeneID", "Status",
@@ -115,7 +125,16 @@ import.gene2refseq <- function(file="/biomirror/ftp.ncbi.nih.gov/gene/DATA/gene2
     return( g2r )
 }
 
-
+#' import.gene2accession
+#'
+#' @param file path to gene2accession.gz
+#' @param taxid numeric taxon id
+#' @param make.unique logical
+#' 
+#' @return undocumented
+#' 
+#' @author Mark Cowley, 2013-05-30
+#' @export
 import.gene2accession <- function(file="/biomirror/ftp.ncbi.nih.gov/gene/DATA/gene2accession.gz", taxid=10090,
                                make.unique=F) {
     g2acc <- import.gene2refseq(file, taxid, make.unique=make.unique)
@@ -123,10 +142,15 @@ import.gene2accession <- function(file="/biomirror/ftp.ncbi.nih.gov/gene/DATA/ge
     return( g2acc )
 }
 
-# Import the gene2unigene file.
-#
-# Mark Cowley, 30/3/07
-#
+#' Import the gene2unigene file.
+#' 
+#' @param taxid numeric taxon id
+#' @param file path to gene2unigene file
+#' 
+#' @return \code{data.frame}
+#' 
+#' @author Mark Cowley, 30/3/07
+#' @export
 import.unigene2gene <- function(taxid=TAXID.MOUSE,
                                 file="/biomirror/ftp.ncbi.nih.gov/gene/DATA/gene2unigene") {
     if(taxid==TAXID.MOUSE)
@@ -137,7 +161,7 @@ import.unigene2gene <- function(taxid=TAXID.MOUSE,
         prefix <- "Rn"
 
     tmp <- tempfile()
-    cmd <- paste("grep",sQuote(p(prefix, "\\.")),file.path(file),">",tmp)
+    cmd <- paste("grep",sQuote(paste0(prefix, "\\.")),file.path(file),">",tmp)
     system( cmd )
 
     res <- read.delim(tmp, as.is=T, header=F)[, c(2,1)]
@@ -151,19 +175,24 @@ import.unigene2gene <- function(taxid=TAXID.MOUSE,
     res
 }
 
-
-# Import the Mm.data.gz file file.
-#
-# Mark Cowley, 30/3/07
-#
+#' Import the Mm.data.gz file file.
+#' 
+#' @param taxid numeric taxon id
+#' @param files list of named paths to Hs.data.gz, Mm.data.gz, Rn.data.gz
+#' @param genbank.ids undocumented
+#' 
+#' return undocumented
+#' 
+#' @author Mark Cowley, 30/3/07
+#' @export
 import.unigene.data <- function( taxid=TAXID.MOUSE,
                                  files=list(mouse="/biomirror/bio-mirror.grangenet.net/biomirror/unigene/Mus_musculus/Mm.data.gz",
                                             human="/biomirror/bio-mirror.grangenet.net/biomirror/unigene/Homo_sapiens/Hs.data.gz",
                                             rat="/biomirror/bio-mirror.grangenet.net/biomirror/unigene/Rattus_norvegicus/Rn.data.gz"),
 #                                  file="/biomirror/bio-mirror.grangenet.net/biomirror/unigene/Mus_musculus/Mm.data.gz",
                                  genbank.ids=NULL ) {
-##                                  fields=c("ID", "TITLE", "GENE", "CYTOBAND", "GENE_ID", "LOCUSLINK", "EXPRESS",
-##                                           "RESTR_EXPR", "CHROMOSOME", "STS", "PROTSIM", "SCOUNT", "SEQUENCE" )
+#                                  fields=c("ID", "TITLE", "GENE", "CYTOBAND", "GENE_ID", "LOCUSLINK", "EXPRESS",
+#                                           "RESTR_EXPR", "CHROMOSOME", "STS", "PROTSIM", "SCOUNT", "SEQUENCE" )
 
     if( taxid == TAXID.MOUSE )
         file <- files$"mouse"
@@ -186,9 +215,9 @@ import.unigene.data <- function( taxid=TAXID.MOUSE,
 
     tmp <- tempfile(pattern="ncbi") # this will contain the full-sized uncompressed NCBI file
 
-    if( grepT("\\.gz$", file) ) {
+    if( grepl("\\.gz$", file) ) {
         cat("unzipping")
-        tmp <- p(tmp, ".gz")
+        tmp <- paste0(tmp, ".gz")
         file.copy(file, tmp)
         file.gunzip(tmp)
 
@@ -246,80 +275,80 @@ import.unigene.data <- function( taxid=TAXID.MOUSE,
 }
 
 
-## import.gene2refseq <- function(file="/biomirror/ftp.ncbi.nih.gov/gene/DATA/gene2refseq.gz", taxid=10090) {
-##
-##     stopifnot( file.exists(file) )
-##
-##     tmp <- file.path(tempdir(), "gene2refseq") # this will contain the full-sized uncompressed gene2refseq
-##
-##     if( grepT(".gz$", file) ) {
-##         tmp <- p(tmp, ".gz")
-##         file.copy(file, tmp)
-##         file.gunzip(tmp)
-##
-##         tmp <- sub(".gz$", "", tmp)
-##     }
-##     else {
-##         file.copy(file, tmp)
-##     }
-##
-##     tmp2 <- tempfile() # this will contain gene2refseq for organism of interest.
-##
-##     cat( p("subsetting to taxon ID: ", taxid, "\n") )
-##     system(paste("grep -w '^", taxid, "' ", tmp, " > ", tmp2, sep=""))
-##
-##     #
-##     # import the subsetted gene2refseq (approx 15 Mb for mouse)
-##     #
-##     cat( p("importing gene2refseq for ", taxid, "\n") )
-##     gr <- read.delim( tmp2, as.is=T, header=F )
-##     colnames(gr) <- c("TaxonID", "GeneID", "Status", "RNAacc", "RNAgi", "PROTacc", "PROTgi", "GENOMEacc", "GENOMEgi", "Start", "Stop", "Strand")
-##
-##     #
-##     # cleanup /tmp
-##     #
-##     unlink(c(tmp, tmp2))
-##
-##     gr <- gr[order(gr$GeneID), ]
-##
-##     return( gr )
-## }
+# import.gene2refseq <- function(file="/biomirror/ftp.ncbi.nih.gov/gene/DATA/gene2refseq.gz", taxid=10090) {
+#
+#     stopifnot( file.exists(file) )
+#
+#     tmp <- file.path(tempdir(), "gene2refseq") # this will contain the full-sized uncompressed gene2refseq
+#
+#     if( grepl(".gz$", file) ) {
+#         tmp <- paste0(tmp, ".gz")
+#         file.copy(file, tmp)
+#         file.gunzip(tmp)
+#
+#         tmp <- sub(".gz$", "", tmp)
+#     }
+#     else {
+#         file.copy(file, tmp)
+#     }
+#
+#     tmp2 <- tempfile() # this will contain gene2refseq for organism of interest.
+#
+#     cat( paste0("subsetting to taxon ID: ", taxid, "\n") )
+#     system(paste("grep -w '^", taxid, "' ", tmp, " > ", tmp2, sep=""))
+#
+#     #
+#     # import the subsetted gene2refseq (approx 15 Mb for mouse)
+#     #
+#     cat( paste0("importing gene2refseq for ", taxid, "\n") )
+#     gr <- read.delim( tmp2, as.is=T, header=F )
+#     colnames(gr) <- c("TaxonID", "GeneID", "Status", "RNAacc", "RNAgi", "PROTacc", "PROTgi", "GENOMEacc", "GENOMEgi", "Start", "Stop", "Strand")
+#
+#     #
+#     # cleanup /tmp
+#     #
+#     unlink(c(tmp, tmp2))
+#
+#     gr <- gr[order(gr$GeneID), ]
+#
+#     return( gr )
+# }
 
-## import.gene_info <- function(file="/biomirror/ftp.ncbi.nih.gov/gene/DATA/gene_info.gz", taxid=10090) {
-##
-##     stopifnot( file.exists(file) )
-##
-##     tmp <- file.path(tempdir(), "gene_info") # this will contain the full-sized uncompressed gene_info
-##
-##     if( grepT(".gz$", file) ) {
-##         tmp <- p(tmp, ".gz")
-##         file.copy(file, tmp)
-##         file.gunzip(tmp)
-##
-##         tmp <- sub(".gz$", "", tmp)
-##     }
-##     else {
-##         file.copy(file, tmp)
-##     }
-##
-##     tmp2 <- tempfile() # this will contain gene_info for organism of interest.
-##
-##     cat( p("subsetting to taxon ID: ", taxid, "\n") )
-##     system(paste("grep -w '^", taxid, "' ", tmp, " > ", tmp2, sep=""))
-##
-##     #
-##     # import the subsetted gene_info (approx 15 Mb for mouse)
-##     #
-##     cat( p("importing gene_info for ", taxid, "\n") )
-##     ginfo <- read.delim( tmp2, as.is=T, header=F )
-##     colnames(ginfo) <- c("TaxonID", "GeneID", "Symbol", "LocusTag", "Synonyms", "dbXrefs", "Chr", "MapLoc", "Description", "Type", "SymbolNomenc", "FullNameNomenc", "StatusNomenc")
-##
-##     #
-##     # cleanup /tmp
-##     #
-##     unlink(c(tmp, tmp2))
-##
-##     ginfo <- ginfo[order(ginfo$GeneID), ]
-##
-##     return( ginfo )
-## }
+# import.gene_info <- function(file="/biomirror/ftp.ncbi.nih.gov/gene/DATA/gene_info.gz", taxid=10090) {
+#
+#     stopifnot( file.exists(file) )
+#
+#     tmp <- file.path(tempdir(), "gene_info") # this will contain the full-sized uncompressed gene_info
+#
+#     if( grepl(".gz$", file) ) {
+#         tmp <- paste0(tmp, ".gz")
+#         file.copy(file, tmp)
+#         file.gunzip(tmp)
+#
+#         tmp <- sub(".gz$", "", tmp)
+#     }
+#     else {
+#         file.copy(file, tmp)
+#     }
+#
+#     tmp2 <- tempfile() # this will contain gene_info for organism of interest.
+#
+#     cat( paste0("subsetting to taxon ID: ", taxid, "\n") )
+#     system(paste("grep -w '^", taxid, "' ", tmp, " > ", tmp2, sep=""))
+#
+#     #
+#     # import the subsetted gene_info (approx 15 Mb for mouse)
+#     #
+#     cat( paste0("importing gene_info for ", taxid, "\n") )
+#     ginfo <- read.delim( tmp2, as.is=T, header=F )
+#     colnames(ginfo) <- c("TaxonID", "GeneID", "Symbol", "LocusTag", "Synonyms", "dbXrefs", "Chr", "MapLoc", "Description", "Type", "SymbolNomenc", "FullNameNomenc", "StatusNomenc")
+#
+#     #
+#     # cleanup /tmp
+#     #
+#     unlink(c(tmp, tmp2))
+#
+#     ginfo <- ginfo[order(ginfo$GeneID), ]
+#
+#     return( ginfo )
+# }

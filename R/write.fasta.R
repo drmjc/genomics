@@ -21,7 +21,7 @@ write.fasta <- function(sequences, names=names(sequences), file="", subset=NULL)
 		subset <- na.omit(subset)
 	}
 	
-	tmp <- p(">", names[subset], "\n", sequences[subset])
+	tmp <- paste0(">", names[subset], "\n", sequences[subset])
 	write.delim(tmp, file, col.names=F, row.names=F)
 }
 

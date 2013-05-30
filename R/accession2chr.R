@@ -1,13 +1,13 @@
-## Change the GENOMEacc from gene2refseq into a chromosome name
-##
-## Currently supports mouse, human and rat. For new organisms, find
-## out the chromosome accession numbers by searching for them in the
-## tmp genome page:
-## eg:  try searching for "rattus AND norvegicus AND chromosome" in
-##  http://www.tmp.nlm.nih.gov/entrez/query.fcgi?CMD=search&DB=genome
-##
-## Mark Cowley, 14 April 2006
-##
+#' Change the GENOMEacc from gene2refseq into a chromosome name
+#' 
+#' Currently supports mouse, human and rat. For new organisms, find
+#' out the chromosome accession numbers by searching for them in the
+#' tmp genome page:
+#' eg: try searching for "rattus AND norvegicus AND chromosome" in
+#' http://www.tmp.nlm.nih.gov/entrez/query.fcgi?CMD=search&DB=genome
+#' 
+#' @author Mark Cowley, 14 April 2006
+#' @export
 accession2chr <- function(x, taxid=10090) {
     if( taxid == TAXID.MOUSE ) {
         chr <- c( "NC_000067", # chr 1
@@ -96,7 +96,7 @@ accession2chr <- function(x, taxid=10090) {
 
     res <- rep(NA, length(x))
     for(i in 1:length(chr)) {
-##         res[grep(p(chr[i], "\\."), x)] <- names(chr)[i]
+##         res[grep(paste0(chr[i], "\\."), x)] <- names(chr)[i]
         res[grep(chr[i], x)] <- names(chr)[i]
     }
 

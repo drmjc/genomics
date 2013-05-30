@@ -25,6 +25,7 @@
 #' @references 
 #' [1] \url{ftp://ftp.sanger.ac.uk/pub/mirbase/sequences/CURRENT}
 #' @export
+#' @importFrom mjcbase vecmerge
 import.miRbase <- function(miRNA.xls.file, species.code="hsa", gff=NULL, predict.arm=TRUE) {
 	#
 	# import the miRNA.xls file, and clean it up.
@@ -178,6 +179,7 @@ import.miRbase.locations <- function(gff.file) {
 #'   Mature2 columns from the original miRNA file
 #' @author Mark Cowley, 2009-01-07
 #' @export
+#' @importFrom mjcbase collapse.rows
 miRbase.miR2mir <- function(mir2miR, collapse=TRUE, sep=" // ") {
 	generic.columns <- intersect(c('Accession', 'ID', 'Status', 'Sequence', 'pos'), colnames(mir2miR))
 	
@@ -333,6 +335,7 @@ miRNA.fix.miR.ids <- function(miRids) {
 #'   species code, eg \dQuote{hsa}
 #' @author Mark Cowley, 2009-01-13
 #' @export
+#' @importFrom mjcbase file.isgzip file.gunzip
 import.mirbase.dropped <- function(file, species="hsa") {
 	if( file.isgzip(file) )
 		file <- file.gunzip(file, tempfile())
@@ -371,6 +374,7 @@ import.mirbase.dropped <- function(file, species="hsa") {
 #' 
 #' @author Mark Cowley, 2009-01-13
 #' @export
+#' @importFrom mjcbase str_right mgrep
 miRNA.validate.miR.ID <- function(miRids, mirbase5p3p, dropped.mirs=NULL) {
 	if( is.null(dropped.mirs) )
 		dropped.mirs <- NULL
@@ -473,7 +477,7 @@ miRNA.validate.miR.ID <- function(miRids, mirbase5p3p, dropped.mirs=NULL) {
 				res$miRbase.id[i] <- tmp
 				res$explanation[i] <- "CHANGED: choice of two 5p/3p miR's. Chose the oldest MIMAT Acc to match the miR$"
 			}
-			else if( length(grep(p(mirid, "-[1-9]"), mirbase5p3p$ID)) > 1 ) {
+			else if( length(grep(paste0(mirid, "-[1-9]"), mirbase5p3p$ID)) > 1 ) {
 				res$miRbase.id[i] <- NA
 				res$explanation[i] <- "ERROR: Multiple precursor mir genes found (from query miR)"
 			}
@@ -618,11 +622,12 @@ mirna.pre2mature <- function(mirs, patterns=c("*", "-5p", "-3p"), major.only=FAL
 }
 
 #' Convert pre to mature microRNA's
+#' 
 #' Wrapper around \code{\link{mirna.pre2mature}}
 #' 
 #' @param mirs a character vector of precursor mirbase ID's
 #' @param patterns the possible patterns that make up a mature miRNA ID
-#' @param major.only return only the major form of the mature miRNA? (ie only 1
+#' @param major.only logical: return only the major form of the mature miRNA? (ie only 1
 #'   value)
 #' @return a list with N elements, one for each mir in 'mirs'. Each element is
 #'   a character vector of possible miRNA ID's.
@@ -704,7 +709,7 @@ mirIDsplit <- function(mirs) {
 				RHS[nodash] <- ""
 			}
 		}
-		# if( grepT("-", x) ) {
+		# if( grepl("-", x) ) {
 		# 	LHS <- sub("-.*", "", x)
 		# 	RHS <- sub("^[^-]+-", "", x)
 		# }
@@ -771,9 +776,12 @@ mirsort <- function(mirs) {
 #' @return the numeric index that each mir \emph{would} be in if mirs was sorted.
 #' @author Mark Cowley, 2008-06-24
 #' @export
+#' @importFrom mjcbase na.rm
 #' @examples
-#' # not run
+#' \dontrun{
 #' # mirsort(affymir)
+#' }
+#' 
 mirorder <- function(mirs) {
 	mirs <- na.rm( mirs )
 	mirsplit <- mirIDsplit( mirs )

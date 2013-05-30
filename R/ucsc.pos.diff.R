@@ -1,26 +1,26 @@
-# Method to determine the distance between two genomic regions in "ucsc.pos" format.
-# NB: from and to can be ucsc.pos vectors (character vectors) of the same length.
-# Value:
-#  an integer, or Inf
-# Examples:
-#     ucsc.pos.diff("chr9:1000-2000", "chr9:1500-2100", "min")
-#     # [1] 0
-#     ucsc.pos.diff("chr9:1000-2000", "chr9:1500-2100", "start")
-#     # [1] 500
-#     ucsc.pos.diff("chr9:1000-2000", "chr9:1500-2100", "stop")
-#     # [1] 100
-#     ucsc.pos.diff("chr9:1000-2000", "chr9:1500-2100", "middle")
-#     # [1] 300
-#     ucsc.pos.diff("chr9:1000-2000", "chr9:2100-2200", "min")
-#     # [1] 100
-#     ucsc.pos.diff("chr9:1000-2000", "chr9:2100-2200", "start")
-#     # [1] 1100
-#     ucsc.pos.diff("chr9:1000-2000", "chr9:2100-2200", "stop")
-#     # [1] 200
-#     ucsc.pos.diff("chr9:1000-2000", "chrX:2100-2200", "stop")
-#     # [1] Inf
-#
-# Mark Cowley, 18/4/07
+#' Method to determine the distance between two genomic regions in "ucsc.pos"
+#' format.
+#' 
+#' @return an integer, or Inf
+#' @author Mark Cowley, 18/4/07
+#' @examples
+#' ucsc.pos.diff("chr9:1000-2000", "chr9:1500-2100", "min")
+#' # [1] 0
+#' ucsc.pos.diff("chr9:1000-2000", "chr9:1500-2100", "start")
+#' # [1] 500
+#' ucsc.pos.diff("chr9:1000-2000", "chr9:1500-2100", "stop")
+#' # [1] 100
+#' ucsc.pos.diff("chr9:1000-2000", "chr9:1500-2100", "middle")
+#' # [1] 300
+#' ucsc.pos.diff("chr9:1000-2000", "chr9:2100-2200", "min")
+#' # [1] 100
+#' ucsc.pos.diff("chr9:1000-2000", "chr9:2100-2200", "start")
+#' # [1] 1100
+#' ucsc.pos.diff("chr9:1000-2000", "chr9:2100-2200", "stop")
+#' # [1] 200
+#' ucsc.pos.diff("chr9:1000-2000", "chrX:2100-2200", "stop")
+#' # [1] Inf
+#' @export
 ucsc.pos.diff <- function(from, to, method=c("min", "start", "stop", "middle")) {
     method <- method[1]
 
@@ -105,7 +105,14 @@ ucsc.pos.diff <- function(from, to, method=c("min", "start", "stop", "middle")) 
     return(res)
 }
 
-
+#' ucsc.pos.split
+#' 
+#' split UCSC-style locations to \code{data.frame} style
+#'
+#' @param x character vector of UCSC-style locations
+#' @return a 3 column \code{data.frame} 'chr', 'start', 'stop'
+#' @author Mark Cowley, 2013-05-30
+#' @export
 ucsc.pos.split <- function(x) {
     x <- gsub(",","",x)
     tmp <- strsplit(x, ":")
@@ -120,12 +127,14 @@ ucsc.pos.split <- function(x) {
 }
 
 
-# Shift a set of UCSC-style intervals a certain number of bases along
-# the same chromosome. This can be + or -, but no error checking is done,
-# only warnings made if start locations become negative.
-#
-# Mark Cowley, 2009-01-08
-#
+#' ucsc.pos.add
+#' 
+#' Shift a set of UCSC-style intervals a certain number of bases along the
+#' same chromosome. This can be + or -, but no error checking is done, only
+#' warnings made if start locations become negative.
+#' 
+#' @author Mark Cowley, 2009-01-08
+#' @export
 ucsc.pos.add <- function(x, bases) {
 	x.split <- ucsc.pos.split(x)
 	x.split$start <- x.split$start + bases
@@ -138,33 +147,33 @@ ucsc.pos.add <- function(x, bases) {
 	res
 }
 
-# For a set of UCSC style intervals, produce a new set of intervals
-# that are subsets of those intervals. Strand must be provided, because
-# intervals are strand-less, but the logic to subset an interval depends
-# very much on the strand.
-#
-# eg: subset chr1:1000-1100 (+) to the interval that starts at 2-7 -> chr1:1001-1006
-# eg: subset chr1:1000-1100 (-) to the interval that starts at 2-7 -> chr1:1094-1099
-#
-# Parameters:
-#	intervals: vector of UCSC style intevals, eg "chr1:100-300"
-#	start: vector of numerics defining the starting base within each interval (1-based)
-#	stop: vector of numerics defining the ending base within each interval (1-based). NB
-#		stop can be longer than the original interval.
-#	strand: either a charcter vector of "+"/"-", or {0,1}, or {-1,1}
-#
-# Value:
-#	a vector of UCSC style intervals, adjusted as detailed above
-#
-# Examples:
-# 	ucsc.pos.subset("chr1:1000-1100", 1,11, "+")
-# 	# [1] "chr1:1000-1010"
-#	ucsc.pos.subset("chr1:1000-1100", 1,11, "-")
-# 	# [1] "chr1:1090-1100"
-#   # (you can use > 1 entry too.)
-#
-# Mark Cowley, 2009-01-08
-#
+#' ucsc.pos.subset
+#' 
+#' For a set of UCSC style intervals, produce a new set of intervals that are
+#' subsets of those intervals. Strand must be provided, because intervals are
+#' strand-less, but the logic to subset an interval depends very much on the
+#' strand.
+#' 
+#' eg: subset chr1:1000-1100 (+) to the interval that starts at 2-7 ->
+#' chr1:1001-1006
+#' eg: subset chr1:1000-1100 (-) to the interval that starts at 2-7 ->
+#' chr1:1094-1099
+#' 
+#' @param intervals vector of UCSC style intevals, eg "chr1:100-300"
+#' @param start vector of numerics defining the starting base within each
+#' interval (1-based)
+#' @param stop vector of numerics defining the ending base within each
+#' interval (1-based). NB stop can be longer than the original interval.
+#' @param strand either a charcter vector of "+"/"-", or {0,1}, or {-1,1}
+#' @return a vector of UCSC style intervals, adjusted as detailed above
+#' @author Mark Cowley, 2009-01-08
+#' @examples
+#' ucsc.pos.subset("chr1:1000-1100", 1,11, "+")
+#' # [1] "chr1:1000-1010"
+#' ucsc.pos.subset("chr1:1000-1100", 1,11, "-")
+#' # [1] "chr1:1090-1100"
+#' # (you can use > 1 entry too.)
+#' @export
 ucsc.pos.subset <- function(intervals, start, stop, strand) {
 	if( is.numeric(strand) ) {
 		if( all(strand) %in% c(-1,1) )

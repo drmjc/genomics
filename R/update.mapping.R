@@ -2,7 +2,7 @@
 ## ## update.mapping <- function(genbankIDs, g2acc=NULL, ginfo=NULL, taxid=10090, mirror="/import/sparta/data/mark/mirror/ftp.ncbi.nih.gov") {
 ## ##
 ## ##     if( is.character(taxid) )
-## ##         taxid <- get.taxa(taxid)
+## ##         taxid <- get.taxonID(taxid)
 ## ##
 ## ##     if( is.null(g2acc) )
 ## ##         g2acc <- get.gene2accession(taxid=taxid, mirror=mirror)
@@ -29,7 +29,7 @@
 ## get.gene2accession <- function(taxid=10090, mirror="/import/sparta/data/mark/mirror/ftp.ncbi.nih.gov") {
 ##
 ##     if( is.character(taxid) )
-##         taxid <- get.taxa(taxid)
+##         taxid <- get.taxonID(taxid)
 ##
 ##     gene2accession <- file.path(mirror, "gene/DATA", "gene2accession.gz")
 ##     if( !file.exists(gene2accession) )
@@ -38,7 +38,7 @@
 ##     #
 ##     # unzip the gene2accession file
 ##     #
-##     tmp <- p(tempfile(pattern="g2acc"), ".gz")
+##     tmp <- paste0(tempfile(pattern="g2acc"), ".gz")
 ##
 ##     file.copy(gene2accession, tmp)
 ##     file.gunzip(tmp)
@@ -48,7 +48,7 @@
 ##     # extract out the specified organism
 ##     #
 ##     g2acc.file <- tempfile(pattern="g2acc")
-##     system(p("cd ", tempdir(), " && ", "grep -w '^", taxid, "' ", tmp, " > ", g2acc.file ))
+##     system(paste0("cd ", tempdir(), " && ", "grep -w '^", taxid, "' ", tmp, " > ", g2acc.file ))
 ##     file.remove( tmp )
 ##
 ##     g2acc <- read.delim(g2acc.file, as.is=T, header=F, na.strings="-")
@@ -67,7 +67,7 @@
 ## get.gene_info <- function(taxid=10090, mirror="/import/sparta/data/mark/mirror/ftp.ncbi.nih.gov") {
 ##
 ##     if( is.character(taxid) )
-##         taxid <- get.taxa(taxid)
+##         taxid <- get.taxonID(taxid)
 ##
 ##     gene_info <- file.path(mirror, "gene/DATA", "gene_info.gz")
 ##     if( !file.exists(gene_info) )
@@ -76,7 +76,7 @@
 ##     #
 ##     # unzip the gene_info file
 ##     #
-##     tmp <- p(tempfile(pattern="ginfo"), ".gz")
+##     tmp <- paste0(tempfile(pattern="ginfo"), ".gz")
 ##
 ##     file.copy(gene_info, tmp)
 ##     file.gunzip(tmp)
@@ -86,7 +86,7 @@
 ##     # extract out the specified organism
 ##     #
 ##     ginfo.file <- tempfile(pattern="ginfo")
-##     system(p("cd ", tempdir(), " && ", "grep -w '^", taxid, "' ", tmp, " > ", ginfo.file ))
+##     system(paste0("cd ", tempdir(), " && ", "grep -w '^", taxid, "' ", tmp, " > ", ginfo.file ))
 ##     file.remove( tmp )
 ##
 ##     ginfo <- read.delim(ginfo.file, as.is=T, header=F, na.strings="-")
@@ -101,23 +101,36 @@
 ##     return( ginfo )
 ## }
 
-
-get.taxa <- function(taxid) {
-    if( grepT("mouse", taxid, ignore.case=T) || grepT("mm", taxid, ignore.case=T) )
+#' get.taxonID
+#' 
+#' return taxon ID for a species name or short code
+#'
+#' @param taxid species name, some aliases, or 2 letter code
+#' @return numeric taxon ID
+#' @author Mark Cowley, 2013-05-30
+#' @export
+#' @examples
+#' get.taxonID("mouse")
+#' get.taxonID("mm")
+#' get.taxonID("hs")
+#' get.taxonID("rat")
+#' get.taxonID("rn")
+get.taxonID <- function(taxid) {
+    if( grepl("mouse", taxid, ignore.case=T) || grepl("mm", taxid, ignore.case=T) )
         return( 10090 )
-    else if( grepT("human", taxid, ignore.case=T) || grepT("hs", taxid, ignore.case=T) )
+    else if( grepl("human", taxid, ignore.case=T) || grepl("hs", taxid, ignore.case=T) )
         return( 9606 )
-    else if( grepT("rat", taxid, ignore.case=T) || grepT("rn", taxid, ignore.case=T) )
+    else if( grepl("rat", taxid, ignore.case=T) || grepl("rn", taxid, ignore.case=T) )
         return( 10116 )
-    else if( grepT("fly", taxid, ignore.case=T) || grepT("fruit", taxid, ignore.case=T) ||
-             grepT("drosophila", taxid, ignore.case=T) || grepT("dm", taxid, ignore.case=T) )
+    else if( grepl("fly", taxid, ignore.case=T) || grepl("fruit", taxid, ignore.case=T) ||
+             grepl("drosophila", taxid, ignore.case=T) || grepl("dm", taxid, ignore.case=T) )
         return( 7227 )
-    else if( grepT("cress", taxid, ignore.case=T) || grepT("arabidopsis", taxid, ignore.case=T) )
+    else if( grepl("cress", taxid, ignore.case=T) || grepl("arabidopsis", taxid, ignore.case=T) )
         return( 3702 )
-    else if( grepT("yeast", taxid, ignore.case=T) || grepT("sacchar", taxid, ignore.case=T) )
+    else if( grepl("yeast", taxid, ignore.case=T) || grepl("sacchar", taxid, ignore.case=T) )
         return( 4932 )
     else {
-        error(p("unsupported organism -- suggest looking up Taxa ID at\n",
+        stop(paste0("unsupported organism -- suggest looking up Taxa ID at\n",
                 "http://www.ncbi.nlm.nih.gov/entrez/query.fcgi?db=Taxonomy\n"))
         return( 0 )
     }

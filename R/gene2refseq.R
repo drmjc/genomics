@@ -1,24 +1,44 @@
-## find a unique genomic mapping for each entrez gene (if known)
-##
-## The gene2refseq file maps many refseq records to one Entrez gene record.
-## If the refseq has been mapped to the genome, then the GENOMEacc column
-## contains a chromosomal accession no starting with NC. Note, NT records
-## are contig mappings which do not tell us genomic mapping locations.
-##
-## Essentially, only lines that are mapped to NC are considered, and if there
-## are >1 mappings, then the record with the stronger refseq status is
-## considered (see rank.refseq). If there's still a tie then the row closest
-## to the top of the file is used.
-##
-## NB: for mouse build 35.1, 30172 out of 43981 GeneID records were mapped
-##     successfully (ie 69%) using gene2refseq downloaded on 2/3/06.
-##
-## Mark Cowley, 10 April 2006
-##
+#' find a unique genomic mapping for each entrez gene (if known)
+#' 
+#' The gene2refseq file maps many refseq records to one Entrez gene record.
+#' If the refseq has been mapped to the genome, then the GENOMEacc column
+#' contains a chromosomal accession no starting with NC. Note, NT records
+#' are contig mappings which do not tell us genomic mapping locations.
+#' Essentially, only lines that are mapped to NC are considered, and if there
+#' are >1 mappings, then the record with the stronger refseq status is
+#' considered (see rank.refseq). If there's still a tie then the row closest
+#' to the top of the file is used.
+#' NB: for mouse build 35.1, 30172 out of 43981 GeneID records were mapped
+#' successfully (ie 69%) using gene2refseq downloaded on 2/3/06.
+#' 
+#' @param g2acc undocumented
+#' @return undocumented
+#' 
+#' @author Mark Cowley, 10 April 2006
+#' @export
 make.unique.gene2accession <- function( g2acc ) {
     make.unique.gene2refseq( g2acc )
 }
 
+#' find a unique genomic mapping for each entrez gene (if known)
+#' 
+#' The gene2refseq file maps many refseq records to one Entrez gene record.
+#' If the refseq has been mapped to the genome, then the GENOMEacc column
+#' contains a chromosomal accession no starting with NC. Note, NT records
+#' are contig mappings which do not tell us genomic mapping locations.
+#' Essentially, only lines that are mapped to NC are considered, and if there
+#' are >1 mappings, then the record with the stronger refseq status is
+#' considered (see rank.refseq). If there's still a tie then the row closest
+#' to the top of the file is used.
+#' NB: for mouse build 35.1, 30172 out of 43981 GeneID records were mapped
+#' successfully (ie 69%) using gene2refseq downloaded on 2/3/06.
+#' 
+#' @param g2r undocumented
+#' @param taxid undocumented
+#' @return undocumented
+#' 
+#' @author Mark Cowley, 10 April 2006
+#' @export
 make.unique.gene2refseq <- function(g2r, taxid=TAXID.MOUSE) {
     g2r <- g2r[grep("^NC", g2r$GENOMEacc),]
     g2r <- g2r[order(g2r$GeneID),]
@@ -64,14 +84,22 @@ make.unique.gene2refseq <- function(g2r, taxid=TAXID.MOUSE) {
 
 
 
-## From the tmp Handbook:
-## http://www.tmp.nlm.nih.gov/books/bv.fcgi?rid=handbook.table.697
-##
-## I"ve placed INFERRED as stronger evidence than PREDICTE, GA or WGS since there is evidence
-## in other organisms that is exists.
-##
-## VALIDATED >> REVIEWED >> PROVISIONAL >> INFERRED  >> PREDICTED = GENOME ANNOTATION = WGS
-##     1            2           3             4            5               5             5
+#' rank RefSeq identifiers
+#' 
+#' From the tmp Handbook:
+#' http://www.tmp.nlm.nih.gov/books/bv.fcgi?rid=handbook.table.697
+#' 
+#' I've placed INFERRED as stronger evidence than PREDICTED, GA or WGS since
+#' there is evidence
+#' in other organisms that is exists.
+#' VALIDATED >> REVIEWED >> PROVISIONAL >> INFERRED >> PREDICTED = GENOME
+#' ANNOTATION = WGS
+#' 
+#' @param x undocumented
+#' @return undocumented
+#' 
+#' @author Mark Cowley
+#' @export
 rank.refseq <- function(x) {
     ranks <- rep(5, length(x))
 
@@ -84,17 +112,25 @@ rank.refseq <- function(x) {
 }
 
 
-## return the order of a vector of RefSeq status's such that those
-##  that are VALIDATED come before those that are PREDICTED.
-##
-## Here are the status rankings:
-## VALIDATED >> REVIEWED >> PROVISIONAL >> INFERRED  >> PREDICTED = GENOME ANNOTATION = WGS
-##     1            2           3             4            5               5             5
-##
-## see ?order for equivalent method using normal integers.
-##
-## Mark Cowley, 10 April 2006
-##
+#' order RefSeq ID's by validation status
+#' 
+#' return the order of a vector of RefSeq status's such that those that are
+#' VALIDATED come before those that are PREDICTED.
+#' 
+#' Here are the status rankings:
+#' VALIDATED >> REVIEWED >> PROVISIONAL >> INFERRED >> PREDICTED = GENOME
+#' ANNOTATION = WGS
+#' 1 2 3 4 5 5 5
+#' see ?order for equivalent method using normal integers.
+#' 
+#' @param x undocumented
+#' @param na.last see order
+#' @param decreasing see order
+#' 
+#' @return Undocumented return value
+#' 
+#' @author Mark Cowley, 10 April 2006
+#' @export
 order.refseq <- function(x, na.last = TRUE, decreasing = FALSE) {
     return( order(rank.refseq(x), na.last=na.last, decreasing=decreasing) )
 }

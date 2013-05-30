@@ -1,41 +1,23 @@
-## Framework procedure for updating mappings:
-##
-## g2r <- import.gene2refseq(make.unique=T)
-##
-## length(unique(gr$GeneID))
-## length(unique(g2r$GeneID))
-## setdiff(gr$GeneID, g2r$GeneID)[1:20]
-##
-## tmp <- retrieve.genomic.loc(setdiff(gr$GeneID, g2r$GeneID))
-## tmp <- tmp[!is.na(tmp$Chr),]
-## tmp <- tmp[tmp$GeneID %in% setdiff(tmp$GeneID, g2r$GeneID), ] # rm the ones that have already been added
-## tmp2 <- as.data.frame(matrix(NA, nrow(tmp), ncol(g2r)))
-## colnames(tmp2) <- colnames(g2r)
-## tmp2[,colnames(tmp)] <- tmp
-##
-## g2r <- rbind(g2r, tmp2)
-## g2r <- g2r[order(g2r$GeneID), ]
-## dim(g2r)
-
-
-
-## Lookup a GeneID at NCBI and see if there is a refseq record that has been
-## mapped to the genome. Why? for some reason the gene2refseq file does not
-## reflect the NCBI website all the time? strange.
-##
-## eg: retrieve.genomic.loc( 11643 )
-##
-## Parameters:
-##     x: an Entrez GeneID
-##     override.cache: a ncbi copy of the webpage is saved. This can be
-##                     overwritten to get the very latest webpage if you
-##                     desire.
-##     sleep: if length(x) > 1, how many seconds should we sleep between
-##            batch commands?
-##
-## Mark Cowley, 10 April 2006
-##
-retrieve.genomic.loc <- function(geneID, override.cache=F, cache.dir="~/data/mirror/gene.searches", sleep=1) {
+#' retrieve.genomic.loc
+#' 
+#' Lookup a GeneID at NCBI and see if there is a refseq record that has been
+#' mapped to the genome. Why? for some reason the gene2refseq file does not
+#' reflect the NCBI website all the time? strange.
+#' 
+#' @param geneID an Entrez GeneID
+#' @param override.cache a ncbi copy of the webpage is saved. This can be
+#' overwritten to get the very latest webpage if you desire.
+#' @param sleep if length(x) > 1, how many seconds should we sleep between
+#' batch commands?
+#' @author Mark Cowley, 10 April 2006
+#' @export
+#' @importFrom mjcbase scan.text
+#' @examples
+#' \dontrun{
+#' retrieve.genomic.loc( 11643 )
+#' }
+#' 
+retrieve.genomic.loc <- function(geneID, override.cache=FALSE, cache.dir="~/data/mirror/gene.searches", sleep=1) {
 
     if( !file.exists(cache.dir) ) {
         stop("the cache.dir does not exist. recommend setting cache.dir=\"tempdir()\".\n")
@@ -50,7 +32,7 @@ retrieve.genomic.loc <- function(geneID, override.cache=F, cache.dir="~/data/mir
         res <- matrix(NA, length(geneID), length(COLNAMES))
         colnames(res) <- COLNAMES
         for(i in 1:length(geneID)) {
-            incache <- file.exists( file.path(cache.dir, p(as.character(geneID[i]), ".htm")) )
+            incache <- file.exists( file.path(cache.dir, paste0(as.character(geneID[i]), ".htm")) )
 
             tmp <- retrieve.genomic.loc( geneID[i], override.cache=override.cache,
                                             cache.dir=cache.dir )
@@ -91,13 +73,13 @@ retrieve.genomic.loc <- function(geneID, override.cache=F, cache.dir="~/data/mir
     #
     # primite use of cache files
     #
-    tmp.result.file <- file.path(cache.dir, p(as.character(geneID), ".htm"))
+    tmp.result.file <- file.path(cache.dir, paste0(as.character(geneID), ".htm"))
 
     if( override.cache || !file.exists(tmp.result.file ) ) {
         #
         # download and cache the weblink from NCBI
         #
-        ncbi <- scan.text(p(pre, geneID))
+        ncbi <- scan.text(paste0(pre, geneID))
         write(ncbi, tmp.result.file )
     }
     else {
@@ -135,7 +117,7 @@ retrieve.genomic.loc <- function(geneID, override.cache=F, cache.dir="~/data/mir
         GENOMEacc <- parts[1]
         start <- as.numeric( parts[2] )
         stop <-  as.numeric( parts[3] )
-        strand <- ifelse( grepT("minus strand", ncbi), "-", "+" )
+        strand <- ifelse( grepl("minus strand", ncbi), "-", "+" )
         chr <- accession2chr( parts[1] )
 
         res <- c(geneID, GENOMEacc, start, stop, strand, chr)

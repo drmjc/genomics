@@ -10,6 +10,7 @@
 #' @return a ucsc string, eg \dQuote{chr13:40727709-40745894}
 #' @author Mark Cowley
 #' @export
+#' @importFrom mjcbase alleq
 alignment2ucsc <- function(x) {
 	#
 	# find the column indices in x that contain the
@@ -74,6 +75,7 @@ ucsc.pos <- function(chr, start=NULL, stop=NULL) {
 #' @return a ucsc string, eg \dQuote{chr13:40727709-40745894}
 #' @author Mark Cowley
 #' @export
+#' @importFrom mjcbase is.matrix.like o2n n2o
 make.ucsc.string <- function(chr, start=NULL, stop=NULL) {
 #	  opd <- options()$digits
 #	  on.exit(options(digits=opd))
@@ -129,7 +131,6 @@ make.ucsc.string <- function(chr, start=NULL, stop=NULL) {
 
 #' is a UCSC string?
 #' 
-#' 
 #' @param x a vector of UCSC strings
 #' @return logical vector if the elements look like valid UCSC locations
 #' @author Mark Cowley
@@ -151,6 +152,7 @@ is.ucsc.string <- function(x) {
 
 
 #' Convert integers to characters
+#' 
 #' Really big integers like genomic locations can become scientific when
 #' converted to strings eg "1e09" instead of "1000000000"
 #' @param x an integer vector
@@ -166,6 +168,7 @@ int2char <- function(x) {
 
 
 #' interval sizes
+#' 
 #' Calculate the size of each genomic interval listed in a ucsc-style string
 #'
 #' @param x a vector of ucsc-style location strings

@@ -14,7 +14,7 @@
 import.miRbase.mir2miR <- function(f="~/data/miRBase/sequences/latest/miRNA.csv", species="hsa", as.list=FALSE) {
 	stopifnot(file.exists(f))
 	raw <- read.csv(f)
-	idx <- grep(p("^", species), raw$ID)
+	idx <- grep(paste0("^", species), raw$ID)
 	mir2miRs <- raw[idx, c("ID", "Mature1_ID", "Mature2_ID")]
 	colnames(mir2miRs) <- c("mir", "miR1", "miR2")
 	
@@ -31,6 +31,8 @@ import.miRbase.mir2miR <- function(f="~/data/miRBase/sequences/latest/miRNA.csv"
 	mir2miRs
 }
 
+#' import.miRbase.miR2mir
+#' 
 #' Import the master miRBase miRNA table, but re-order the relationships to be
 #' from miR to mir
 #' 
@@ -75,10 +77,15 @@ import.miRbase.miR2mir <- function(f="~/data/miRBase/sequences/latest/miRNA.csv"
 }
 
 
+#' import.miRbase.mirome
+#' 
 #' Obtain the set of all immature 'mirs' from miRBase = the 'mir-ome'
 #' 
 #' @param f the lastest miRBase miRNA.csv file (from Sanger FTP)
 #' @param species which 3 letter species code? (default hsa)
+#' 
+#' @return Undocumented return value
+#' 
 #' @author Mark Cowley, 2008-09-22
 #' @export
 import.miRbase.mirome <- function(f="~/data/miRBase/sequences/latest/miRNA.csv", species="hsa") {
@@ -88,6 +95,8 @@ import.miRbase.mirome <- function(f="~/data/miRBase/sequences/latest/miRNA.csv",
 	mirs
 }
 
+#' import.miRbase.miRome
+#' 
 #' Obtain the set of all mature 'miRs' from miRBase = the 'miR-ome'
 #' 
 #' @param f the lastest miRBase miRNA.csv file (from Sanger FTP)

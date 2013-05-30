@@ -1,23 +1,25 @@
-## Function to threshold a pvalue table at various levels, and report how many genes
-## pass those linkage thresholds.
-## You can look at various subsets of genes from within the pval table, by supplying a
-## list argument to 'genes' where each element of the list is a vector of row indices.
-##
-## Parameters:
-##     pvals: a GxM matrix, where G is no. of genes, M is no of markers
-##     thresholds: the various levels at which to threshold the data
-##     genes: if NULL, then all genes are used;
-##            alternatively, it can be a list of numeric vectors which will be used
-##            to index the rows in the pvals table
-##     file: the name of a text file for the results to be written to
-##
-## Value:
-##     if genes == NULL then a named vector of counts of genes that pass the thresholds
-##     is produced. If genes != NULL, then a table of counts is produced, with each set
-##     of genes in a different appropriately named column.
-##
-## Mark Cowley, 22 Feb 2006
-##
+#' summarise.genomescan
+#' 
+#' Function to threshold a pvalue table at various levels, and report how many
+#' genes pass those linkage thresholds. You can look at various subsets of
+#' genes from within the pval table, by supplying a list argument to 'genes'
+#' where each element of the list is a vector of row indices.
+#' 
+#' @param pvals a GxM matrix, where G is no. of genes, M is no of markers
+#' @param thresholds the various levels at which to threshold the data
+#' @param genes if NULL, then all genes are used; alternatively, it can be a
+#' list of numeric vectors which will be used to index the rows in the pvals
+#' table
+#' @param file the name of a text file for the results to be written to
+#' @return if genes == NULL then a named vector of counts of genes that pass
+#' the thresholds is produced. If genes != NULL, then a table of counts is
+#' produced, with each set of genes in a different appropriately named column.
+#' @author Mark Cowley, 22 Feb 2006
+#' @export
+#' @examples
+#' \dontrun{
+#' 	# summarise.genomescan(brain.M.spt$p, genes=genes, file="brain.M.spt.summary.txt")
+#' }
 summarise.genomescan <- function( pvals, thresholds=c(0.05, 0.001, 1e-04, 1e-05, 1e-06, 1e-07),
                                   genes=NULL, file=NULL, which.genes=F, which.markers=F ) {
 
@@ -64,10 +66,9 @@ summarise.genomescan <- function( pvals, thresholds=c(0.05, 0.001, 1e-04, 1e-05,
     }
 
     if( !is.null(file) && !which.genes )
-        write.delim(res, file, row.names=T, row.names="threshold")
+        write.delim(res, file, row.names="threshold")
 
 
     return( res )
 }
 
-## summarise.genomescan(brain.M.spt$p, genes=genes, file="brain.M.spt.summary.txt")
