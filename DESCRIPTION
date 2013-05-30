@@ -1,13 +1,37 @@
 Package: genomics
-Version: 0.1
-Date: 2006-04-06
+Version: 1.0.0
+Date: 2013-05-30
 Title: Genomics related functions.
-Author: Mark Cowley <mark.cowley@student.unsw.edu.au>
-Maintainer:  Mark Cowley <mark.cowley@student.unsw.edu.au>
-Depends: R (>= 2.2.0)
-Suggests:
-Description: Functions for genomic analysis involving genes, markers and linkage data.
-License: GPL version 2 or newer
-URL: http://www.r-project.org, http://www.littlelab.bioinformatics.unsw.edu.au
-Type: Package
+Author: Mark Cowley
+Maintainer: Mark Cowley <m.cowley@garvan.org.au>
+Depends:
+    R,
+    excelIO
+Description: Functions for genomic analysis involving genes, markers and
+    linkage data.
 License: GPL-2
+Type: Package
+Collate:
+    'accession2chr.R'
+    'alignment2ucsc.R'
+    'gene2refseq.R'
+    'genomics-package.R'
+    'import.miRbase.mir2miR.R'
+    'import.ncbi.files.R'
+    'import.ucsc.files.R'
+    'make.gene.summary.R'
+    'miRbase.utils.R'
+    'ncbi.linkout.R'
+    'range_merge_markers.R'
+    'rename.gnf.markers.R'
+    'retrieve.genomic.loc.R'
+    'summarise.genomescans.R'
+    'ucsc.pos.diff.R'
+    'update.mapping.R'
+    'write.expression.R'
+    'write.fasta.R'
+    'import.gff.R'
+Imports:
+    Biostrings,
+    IRanges,
+    mjcbase
