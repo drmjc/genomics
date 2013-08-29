@@ -9,5 +9,5 @@ This package was developed during my PhD (pre 2009), so don't expect the content
 
 installation
 ============
-library(devtools)
-install_github("genomics", "drmjc")
+    library(devtools)
+    install_github("genomics", "drmjc")
