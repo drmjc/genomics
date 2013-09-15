@@ -11,4 +11,5 @@ installation
 ============
     library(devtools)
     install_github("excelIO", "drmjc")
+    install_github("mjcbase", "drmjc")
     install_github("genomics", "drmjc")
